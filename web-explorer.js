@@ -25,6 +25,9 @@ const host = program.host || '127.0.0.1'
 */
 let tree = scan('.', 'files')
 
+const options = {
+  'recursive': true
+}
 fs.watch('.', options, (eventType, filename) => {
   tree = scan('.', 'files')
   console.log(`event type: ${eventType}`)
