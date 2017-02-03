@@ -13,11 +13,9 @@ const scan = require('./scan')
 program
   .version(pkg.version)
   .option('-p, --port <port>', 'Port on which to listen to (defaults to 3000', parseInt)
-  .option('--host <host>', 'Host on which to listen to (default 127.0.0.1)')
   .parse(process.argv)
 
 const port = program.port || 3000
-const host = program.host || '127.0.0.1'
 
 /* Scan the directory in which the script was called.
 *  It will add the 'files/' prefix to all files and folders, so that
@@ -62,6 +60,6 @@ app.get('/scan', function(req, res) {
 })
 
 // Everything is setup. Listen on the port
-app.listen(port, host)
+app.listen(port)
 
-console.log(`web explorer is running on ${host}:${port}`)
+console.log(`web explorer is running on port ${port}`)
