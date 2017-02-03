@@ -4,21 +4,20 @@
 const path = require('path')
 const express = require('express')
 const contentDisposition = require('content-disposition')
+const fs = require('fs')
+const program = require('commander')
 const pkg = require(path.join(__dirname, 'package.json'))
 const scan = require('./scan')
-const util = require('util')
 
-// Parse command line options
-let program = require('commander')
 
 program
-        .version(pkg.version)
-        .option('-p, --port <port>', 'Port on which to listen to (defaults to 3000', parseInt)
-        .option('-t --time <time>', 'Time interval of scanning (defaults to 30000 ms)')
-        .parse(process.argv)
+  .version(pkg.version)
+  .option('-p, --port <port>', 'Port on which to listen to (defaults to 3000', parseInt)
+  .option('--host <host>', 'Host on which to listen to (default 127.0.0.1)')
+  .parse(process.argv)
 
 const port = program.port || 3000
-const time_interval = program.time || 30000
+const host = program.host || '127.0.0.1'
 
 /* Scan the directory in which the script was called.
 *  It will add the 'files/' prefix to all files and folders, so that
@@ -26,10 +25,15 @@ const time_interval = program.time || 30000
 */
 let tree = scan('.', 'files')
 
-setInterval(function(){
+fs.watch('.', options, (eventType, filename) => {
   tree = scan('.', 'files')
-}, time_interval)
-
+  console.log(`event type: ${eventType}`)
+  if (filename) {
+    console.log(`filename: ${filename}`)
+  } else {
+    console.log('filename not provided')
+  }
+})
 
 // Create a new express app
 let app = express()
@@ -55,7 +59,6 @@ app.get('/scan', function(req, res) {
 })
 
 // Everything is setup. Listen on the port
-app.listen(port)
+app.listen(port, host)
 
-console.log('web explorer is running on port ' + port)
-console.log(util.format('scan files every %d s', time_interval/1000))
+console.log(`web explorer is running on ${host}:${port}`)
